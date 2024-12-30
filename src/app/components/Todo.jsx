@@ -12,8 +12,11 @@ export const ToDo = () => {
 
   const DeleteTodo = (index) => {
     // confirm("Are you sure");
-    setTodos(todos.splice(index + 1, 1));
-    console.log(index);
+    // setTodos(todos.splice(index + 1, 1));
+    // console.log(index);
+
+    const updatedTodos = todos.filter((_, i) => i !== index);
+    setTodos(updatedTodos);
   };
 
   return (
