@@ -15,7 +15,7 @@ export const ToDo = () => {
     // setTodos(todos.splice(index + 1, 1));
     // console.log(index);
 
-    const updatedTodos = todos.filter((_, i) => i !== index);
+    const updatedTodos = [...todos.slice(0, index), ...todos.slice(index + 1)];
     setTodos(updatedTodos);
   };
 
