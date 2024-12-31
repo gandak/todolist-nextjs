@@ -75,11 +75,18 @@
   font-style: normal;
   font-weight: 400;
   line-height: normal;
+  cursor: pointer;
 }
 
-.filterSection button:nth-child(1) {
-  background-color: #3c82f6;
+.activeButton {
+  font-size: 20px;
+  background-color: #3c82f6 !important;
+  color: white !important;
 }
+
+/* .filterSection button:nth-child(1) {
+  background-color: #3c82f6;
+} */
 
 .todoSection {
   display: flex;
