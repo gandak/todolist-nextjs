@@ -93,6 +93,7 @@
   flex-direction: column;
   justify-content: center;
   gap: 20px;
+  align-items: center;
 }
 
 .todoContainer {
@@ -107,8 +108,14 @@
   border-radius: 6px;
 }
 
-/* .todoContainer div {
+.todoContainer div {
   display: flex;
   gap: 6px;
   align-items: center;
-} */
+}
+
+.noTaskDesc {
+  color: #6b7280 !important;
+  font-size: 14px;
+  font-weight: 400;
+}
