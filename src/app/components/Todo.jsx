@@ -5,17 +5,18 @@ import styles from "./todo.module.css";
 export const ToDo = () => {
   const [todos, setTodos] = useState([]);
   const [todosTemp, setTodosTemp] = useState([...todos]);
-  const [newTodo, setNewTodo] = useState([
-    {
-      taskName: "",
-      isCompleted: false,
-    },
-  ]);
+  const [newTodo, setNewTodo] = useState({
+    taskName: "",
+    isCompleted: false,
+  });
   const [activeButton, setActiveButton] = useState("all");
   const [checkedTasks, setCheckedTasks] = useState(0);
 
   const addTodoHandler = () => {
-    if (newTodo.taskName.trim() === "") return;
+    if (newTodo.taskName.trim() === "") {
+      alert("Та утга оруулаагүй байна. Утга оруулна уу.");
+      return;
+    }
 
     setTodos([...todos, newTodo]);
     setTodosTemp([...todos, newTodo]);
@@ -23,11 +24,10 @@ export const ToDo = () => {
       taskName: "",
       isCompleted: false,
     });
-    console.log(newTodo);
   };
 
   const DeleteTodo = (index) => {
-    confirm("Are you sure to delete this item?");
+    confirm("Та устгахдаа итгэлтэй байна уу?");
     const updatedTodos = [...todos.slice(0, index), ...todos.slice(index + 1)];
     setTodos(updatedTodos);
     setTodosTemp(updatedTodos);
@@ -70,7 +70,9 @@ export const ToDo = () => {
   };
 
   const clearCompletedTasks = () => {
-    confirm("Are you sure to delete this item?");
+    if (todos.filter((todo) => todo.isCompleted).length == 0)
+      alert("Completed болсон зүйл байхгүй байна!");
+    // confirm("Та устгахдаа итгэлтэй байна уу?");
 
     const remainingTodos = todos.filter((todo) => todo.isCompleted == false);
     setTodos(remainingTodos);
@@ -153,7 +155,7 @@ export const ToDo = () => {
         <p></p>
       )}
       <div className={styles.poweredBy}>
-        <p>Powered by</p>{" "}
+        <p>Powered by</p>
         <a href="https://www.pinecone.mn/">Pinecone academy</a>
       </div>
     </div>
