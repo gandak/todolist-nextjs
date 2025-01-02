@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { use, useState } from "react";
 import styles from "./todo.module.css";
 
 export const ToDo = () => {
@@ -15,15 +15,27 @@ export const ToDo = () => {
   const [checkedTasks, setCheckedTasks] = useState(0);
 
   const addTodoHandler = () => {
+    if (newTodo.taskName.trim() === "") return;
+
     setTodos([...todos, newTodo]);
+    setTodosTemp([...todos, newTodo]);
+    setNewTodo({
+      taskName: "",
+      isCompleted: false,
+    });
+    console.log(newTodo);
   };
 
   const DeleteTodo = (index) => {
     confirm("Are you sure to delete this item?");
-    // setTodos(todos.splice(index + 1, 1));
-    // console.log(index);
+    const updatedTodos = [...todos.slice(0, index), ...todos.slice(index + 1)];
+    setTodos(updatedTodos);
+    setTodosTemp(updatedTodos);
 
-    setTodos([...todos.slice(0, index), ...todos.slice(index + 1)]);
+    const completedCount = updatedTodos.filter(
+      (todo) => todo.isCompleted
+    ).length;
+    setCheckedTasks(completedCount);
   };
 
   const CheckedTasks = (index) => {
@@ -31,30 +43,43 @@ export const ToDo = () => {
       ? (todos[index].isCompleted = false)
       : (todos[index].isCompleted = true);
     setTodos([...todos]);
-    // console.log(todos[index]);
+
+    const completedCount = todos.filter((todo) => todo.isCompleted).length;
+    setCheckedTasks(completedCount);
   };
 
   const FilterByAll = () => {
     setActiveButton("all");
-    setTodos([...todosTemp]);
+    setTodosTemp([...todos]);
   };
 
   const FilterByActive = () => {
     setActiveButton("active");
     const filteredByActive = todos.filter((todo) => todo.isCompleted == false);
 
-    setTodos([...filteredByActive]);
+    setTodosTemp(filteredByActive);
   };
 
-  // console.log(todos);
   const FilterByCompleted = () => {
     setActiveButton("completed");
 
-    // setTodos([...todosTemp]);
     const filteredByCompleted = todos.filter(
       (todo) => todo.isCompleted == true
     );
-    setTodos([...filteredByCompleted]);
+    setTodosTemp(filteredByCompleted);
+  };
+
+  const clearCompletedTasks = () => {
+    confirm("Are you sure to delete this item?");
+
+    const remainingTodos = todos.filter((todo) => todo.isCompleted == false);
+    setTodos(remainingTodos);
+    setTodosTemp(remainingTodos);
+
+    const completedCount = remainingTodos.filter(
+      (todo) => todo.isCompleted
+    ).length;
+    setCheckedTasks(completedCount);
   };
 
   return (
@@ -63,6 +88,7 @@ export const ToDo = () => {
       <div className={styles.inputSection}>
         <input
           type="text"
+          value={newTodo.taskName}
           placeholder="Add a new task"
           onChange={(e) =>
             setNewTodo({ taskName: `${e.target.value}`, isCompleted: false })
@@ -91,8 +117,8 @@ export const ToDo = () => {
         </button>
       </div>
       <div className={styles.todoSection}>
-        {todos.length ? (
-          todos.map((todo, index) => {
+        {todosTemp.length ? (
+          todosTemp.map((todo, index) => {
             return (
               <div key={index} className={styles.todoContainer}>
                 <div>
@@ -103,7 +129,12 @@ export const ToDo = () => {
                   ></input>
                   <p>{todo.taskName}</p>
                 </div>
-                <button onClick={() => DeleteTodo(index)}>Delete</button>
+                <button
+                  className={styles.taskDeleteButton}
+                  onClick={() => DeleteTodo(index)}
+                >
+                  Delete
+                </button>
               </div>
             );
           })
@@ -116,10 +147,15 @@ export const ToDo = () => {
           <p>
             {checkedTasks} of {todos.length} tasks completed
           </p>
+          <button onClick={clearCompletedTasks}>Clear completed</button>
         </div>
       ) : (
         <p></p>
       )}
+      <div className={styles.poweredBy}>
+        <p>Powered by</p>{" "}
+        <a href="https://www.pinecone.mn/">Pinecone academy</a>
+      </div>
     </div>
   );
 };
