@@ -3,9 +3,11 @@ import { use, useState } from "react";
 import styles from "./todo.module.css";
 
 export const ToDo = () => {
+  const buttons = ["All", "Active", "Completed"];
   const [todos, setTodos] = useState([]);
   const [todosTemp, setTodosTemp] = useState([...todos]);
   const [newTodo, setNewTodo] = useState({
+    id: 1,
     taskName: "",
     isCompleted: false,
   });
@@ -17,68 +19,92 @@ export const ToDo = () => {
       alert("Та утга оруулаагүй байна. Утга оруулна уу.");
       return;
     }
+    if (todos.length > 0) {
+      const lastToDoId = todos[todos.length - 1].id;
 
-    setTodos([...todos, newTodo]);
-    setTodosTemp([...todos, newTodo]);
+      newTodo.id = lastToDoId + 1;
+
+      setTodos([...todos, newTodo]);
+      setTodosTemp([...todos, newTodo]);
+    } else {
+      newTodo.id = 0;
+
+      setTodos([...todos, newTodo]);
+      setTodosTemp([...todos, newTodo]);
+    }
+
     setNewTodo({
+      id: 0,
       taskName: "",
       isCompleted: false,
     });
+
+    console.log(newTodo);
   };
 
-  const DeleteTodo = (index) => {
-    confirm("Та устгахдаа итгэлтэй байна уу?");
-    const updatedTodos = [...todos.slice(0, index), ...todos.slice(index + 1)];
-    setTodos(updatedTodos);
-    setTodosTemp(updatedTodos);
+  const deleteTodo1 = (id) => {
+    const confirmClear = window.confirm("Та устгахдаа итгэлтэй байна уу?");
+    if (!confirmClear) return;
 
-    const completedCount = updatedTodos.filter(
-      (todo) => todo.isCompleted
-    ).length;
+    // const updatedTodos = [...todos.slice(0, index), ...todos.slice(index + 1)];
+    todos.splice(id, 1);
+
+    setTodos([...todos]);
+    setTodosTemp([...todos]);
+
+    const completedCount = todos.filter((todo) => todo.isCompleted).length;
     setCheckedTasks(completedCount);
   };
 
-  const CheckedTasks = (index) => {
-    todos[index].isCompleted
-      ? (todos[index].isCompleted = false)
-      : (todos[index].isCompleted = true);
+  const checkedTasks1 = (id) => {
+    todos[id].isCompleted
+      ? (todos[id].isCompleted = false)
+      : (todos[id].isCompleted = true);
     setTodos([...todos]);
 
     const completedCount = todos.filter((todo) => todo.isCompleted).length;
     setCheckedTasks(completedCount);
   };
 
-  const FilterByAll = () => {
-    setActiveButton("all");
-    setTodosTemp([...todos]);
-  };
+  const filterTasks = (button) => {
+    if (button === "all") {
+      setActiveButton("all");
+      setTodosTemp([...todos]);
+    }
 
-  const FilterByActive = () => {
-    setActiveButton("active");
-    const filteredByActive = todos.filter((todo) => todo.isCompleted == false);
+    if (button === "active") {
+      setActiveButton("active");
+      const filteredByActive = todos.filter(
+        (todo) => todo.isCompleted == false
+      );
 
-    setTodosTemp(filteredByActive);
-  };
+      setTodosTemp(filteredByActive);
+    }
 
-  const FilterByCompleted = () => {
-    setActiveButton("completed");
+    if (button === "completed") {
+      setActiveButton("completed");
 
-    const filteredByCompleted = todos.filter(
-      (todo) => todo.isCompleted == true
-    );
-    setTodosTemp(filteredByCompleted);
+      const filteredByCompleted = todos.filter(
+        (todo) => todo.isCompleted == true
+      );
+      setTodosTemp(filteredByCompleted);
+    }
   };
 
   const clearCompletedTasks = () => {
-    if (todos.filter((todo) => todo.isCompleted).length == 0)
+    if (todos.filter((todo) => todo.isCompleted).length == 0) {
       alert("Completed болсон зүйл байхгүй байна!");
+    } else {
+      const confirmClear = window.confirm("Та устгахдаа итгэлтэй байна уу?");
+      if (!confirmClear) return;
+    }
     // confirm("Та устгахдаа итгэлтэй байна уу?");
 
-    const remainingTodos = todos.filter((todo) => todo.isCompleted == false);
-    setTodos(remainingTodos);
-    setTodosTemp(remainingTodos);
+    const uncheckedTodos = todos.filter((todo) => todo.isCompleted == false);
+    setTodos(uncheckedTodos);
+    setTodosTemp(uncheckedTodos);
 
-    const completedCount = remainingTodos.filter(
+    const completedCount = uncheckedTodos.filter(
       (todo) => todo.isCompleted
     ).length;
     setCheckedTasks(completedCount);
@@ -93,7 +119,11 @@ export const ToDo = () => {
           value={newTodo.taskName}
           placeholder="Add a new task"
           onChange={(e) =>
-            setNewTodo({ taskName: `${e.target.value}`, isCompleted: false })
+            setNewTodo({
+              id: 0,
+              taskName: `${e.target.value}`,
+              isCompleted: false,
+            })
           }
         />
         <button onClick={addTodoHandler}>Add</button>
@@ -101,49 +131,104 @@ export const ToDo = () => {
       <div className={styles.filterSection}>
         <button
           className={activeButton == "all" && styles.activeButton}
-          onClick={FilterByAll}
+          onClick={() => filterTasks("all")}
         >
           All
         </button>
         <button
           className={activeButton == "active" && styles.activeButton}
-          onClick={FilterByActive}
+          onClick={() => filterTasks("active")}
         >
           Active
         </button>
         <button
           className={activeButton == "completed" && styles.activeButton}
-          onClick={FilterByCompleted}
+          onClick={() => filterTasks("completed")}
         >
           Completed
         </button>
       </div>
+
       <div className={styles.todoSection}>
-        {todosTemp.length ? (
-          todosTemp.map((todo, index) => {
-            return (
-              <div key={index} className={styles.todoContainer}>
-                <div>
-                  <input
-                    type="checkbox"
-                    onChange={() => CheckedTasks(index)}
-                    checked={todo.isCompleted}
-                  ></input>
-                  <p>{todo.taskName}</p>
-                </div>
-                <button
-                  className={styles.taskDeleteButton}
-                  onClick={() => DeleteTodo(index)}
-                >
-                  Delete
-                </button>
-              </div>
-            );
-          })
-        ) : (
+        {todos.length == 0 ? (
           <p className={styles.noTaskDesc}>No tasks yet. Add one above!</p>
+        ) : (
+          ""
         )}
+        {activeButton === "all" && todosTemp.length
+          ? todosTemp.map((todo, index) => {
+              return (
+                <div key={index} className={styles.todoContainer}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      onChange={() => checkedTasks1(todo.id)}
+                      checked={todo.isCompleted}
+                    ></input>
+                    <p>{todo.taskName}</p>
+                  </div>
+                  <button
+                    className={styles.taskDeleteButton}
+                    onClick={() => deleteTodo1(todo.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              );
+            })
+          : ""}
+
+        {activeButton === "active" && todosTemp.length
+          ? todosTemp
+              .filter((todo) => !todo.isCompleted)
+              .map((todo, index) => {
+                return (
+                  <div key={index} className={styles.todoContainer}>
+                    <div>
+                      <input
+                        type="checkbox"
+                        onChange={() => checkedTasks1(todo.id)}
+                        checked={todo.isCompleted}
+                      ></input>
+                      <p>{todo.taskName}</p>
+                    </div>
+                    <button
+                      className={styles.taskDeleteButton}
+                      onClick={() => deleteTodo1(todo.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                );
+              })
+          : ""}
+
+        {activeButton === "completed" && todosTemp.length
+          ? todosTemp
+              .filter((todo) => todo.isCompleted)
+              .map((todo, index) => {
+                return (
+                  <div key={index} className={styles.todoContainer}>
+                    <div>
+                      <input
+                        type="checkbox"
+                        onChange={() => checkedTasks1(todo.id)}
+                        checked={todo.isCompleted}
+                      ></input>
+                      <p>{todo.taskName}</p>
+                    </div>
+                    <button
+                      className={styles.taskDeleteButton}
+                      onClick={() => deleteTodo1(todo.id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                );
+              })
+          : ""}
       </div>
+
       {todos.length > 0 ? (
         <div className={styles.footer}>
           <p>
@@ -154,6 +239,7 @@ export const ToDo = () => {
       ) : (
         <p></p>
       )}
+
       <div className={styles.poweredBy}>
         <p>Powered by</p>
         <a href="https://www.pinecone.mn/">Pinecone academy</a>
